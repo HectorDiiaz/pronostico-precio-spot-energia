@@ -1,0 +1,8 @@
+version: "1.1"
+path: "data/dataset_final_v1.1.csv"
+sha256: "8bd796daad2c70764c6401af64746ec84f8c1b2a80ab24df060a1bed9bef30ce"
+target: "precio_promedio_diario_kwh"
+date_column: "Fecha"
+frequency: "D"
+start_date: "2020-01-01"
+end_date: "2025-07-31"

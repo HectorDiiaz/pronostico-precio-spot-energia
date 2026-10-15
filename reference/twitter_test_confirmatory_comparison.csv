@@ -1,0 +1,2 @@
+﻿comparison,n_test,mae_without_twitter,mae_with_twitter,improvement_with_twitter_pct,twitter_wins_days,twitter_wins_days_pct,mean_mae_improvement,ci95_low,ci95_high,bootstrap_probability_improvement,block_days,repetitions,tuning_in_test,selection_changed
+twitter_full_macro vs fundamentals_macro,578,64.12107723123789,64.0077817942596,0.17668985280723984,329,56.92041522491349,0.11329543697830174,0.04147159420234064,0.18316629167937243,0.9993,7,10000,False,False

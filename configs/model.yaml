@@ -1,0 +1,35 @@
+# Modelo seleccionado: Gradient Boosting con pérdida de Huber y corrección por persistencia.
+# El modelo aprende el cambio diario (precio_t - precio_t-1); el pronóstico es precio_t-1 + cambio.
+seed: 42
+selection: "MAE en VALIDATION; RMSE como desempate; TEST nunca participa en la selección"
+
+winner:
+  algorithm: gradient_boosting_huber
+  feature_set: twitter_full_macro
+  # Hiperparámetros congelados (resultado de la búsqueda registrada en reference/).
+  frozen_parameters: {learning_rate: 0.01, max_depth: 3, min_samples_leaf: 15, n_estimators: 100, subsample: 0.8}
+
+# Contraste confirmatorio del aporte de X: mismo algoritmo sin variables de X.
+control_feature_set: fundamentals_macro
+
+# Búsqueda de hiperparámetros (TimeSeriesSplit de 3 particiones dentro de TRAIN).
+search:
+  cv_splits: 3
+  gradient_boosting_huber:
+    n_estimators: [100, 300]
+    learning_rate: [0.01, 0.05]
+    max_depth: [2, 3]
+    min_samples_leaf: [5, 15]
+    subsample: [0.8]
+  ridge:
+    alpha: [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
+  elastic_net:
+    alpha: [0.001, 0.01, 0.1, 1.0, 10.0]
+    l1_ratio: [0.1, 0.5, 0.9]
+
+bootstrap:
+  block_days: 7
+  repetitions: 10000
+
+# Tolerancia absoluta para declarar reproducidas las métricas oficiales (COP/kWh).
+tolerance: 1.0e-6

@@ -1,0 +1,13 @@
+﻿split,group,label,mean_abs_shap,share_pct,n_features
+test,fundamentales,Generación y embalses,5.121479483532972,32.1360310236342,18
+test,calendario,Calendario,4.903622245174456,30.76903014173612,4
+test,precio,Precio rezagado,4.799333811336194,30.114645728792865,6
+test,twitter,Twitter / X,0.7271869072856032,4.5629199702251055,40
+test,macro,Macro (IPC/IPP),0.2619950041633051,1.6439545660390114,4
+test,enso,ENSO (ONI),0.12325876002972638,0.7734185695726941,1
+validation,precio,Precio rezagado,5.758458425439944,33.792808979040444,6
+validation,calendario,Calendario,5.467152963829581,32.083318505815726,4
+validation,fundamentales,Generación y embalses,4.658960885719527,27.34054214169528,18
+validation,twitter,Twitter / X,0.7410022344433332,4.34848098424408,40
+validation,macro,Macro (IPC/IPP),0.2811644967070089,1.649979460984317,4
+validation,enso,ENSO (ONI),0.13374563960743827,0.7848699282201466,1

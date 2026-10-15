@@ -1,0 +1,55 @@
+version: "1.0"
+dataset_config: "configs/dataset.yaml"
+split_config: "configs/split.yaml"
+target: "precio_promedio_diario_kwh"
+date_column: "Fecha"
+
+price:
+  lags: [1, 2, 3, 7, 14, 30]
+
+twitter:
+  variables: ["n_total_tweets", "n_positivo", "n_negativo", "sentiment_index"]
+  lag_variables: ["n_total_tweets", "n_positivo", "n_negativo", "sentiment_index"]
+  lags: [1, 2, 3, 7, 14, 30]
+  rolling_variables: ["n_total_tweets", "n_positivo", "n_negativo"]
+  rolling_windows: [3, 7, 14, 30]
+  rolling_shift: 1
+
+fundamentals:
+  lag_variables: ["nivel_embalses_pct", "pct_hidraulica", "pct_termica", "pct_solar", "pct_eolica", "pct_cogenerador"]
+  lags: [1, 3, 7]
+  excluded_redundant_variables: ["kwh_hidraulica", "kwh_termica", "kwh_solar", "kwh_eolica", "kwh_cogenerador"]
+
+enso:
+  default_candidate: "oni_lag_1"
+  alternative_candidate: "enso_index_lag_1"
+  use_simultaneously_by_default: false
+  causal_lagged_candidates: ["ipc_lag_1m", "ipp_lag_1m", "ipc_variacion_lag_1m", "ipp_variacion_lag_1m"]
+  availability_status: "previous_complete_month; conservative publication-lag proxy"
+
+macro:
+  level_candidates: ["ipc", "ipp_var"]
+  monthly_change_candidates: ["ipc_monthly_pct_change", "ipp_monthly_pct_change"]
+  causal_lagged_candidates: ["ipc_lag_1m", "ipp_lag_1m", "ipc_variacion_lag_1m", "ipp_variacion_lag_1m"]
+  availability_status: "previous_complete_month; conservative publication-lag proxy"
+
+calendar:
+  direct_candidates: ["dia_semana", "es_fin_semana", "es_festivo", "dias_no_laborales_consecutivos"]
+
+excluded:
+  control_variables: ["check_pct_sum", "check_pct_sentimientos"]
+  target_derived_exogenous: ["precio_log"]
+
+feature_sets:
+  baseline_price: ["price_lags"]
+  fundamentals: ["price_lags", "fundamental_lags", "enso_default", "calendar"]
+  twitter_basic: ["fundamentals", "twitter_basic_lag1"]
+  twitter_lags: ["fundamentals", "twitter_lags"]
+  twitter_rolling: ["fundamentals", "twitter_rolling", "twitter_balance_rolling"]
+  twitter_full: ["fundamentals", "twitter_lags", "twitter_rolling", "twitter_balance_rolling"]
+  no_twitter: ["fundamentals"]
+  fundamentals_macro: ["fundamentals", "macro_causal"]
+  twitter_basic_macro: ["twitter_basic", "macro_causal"]
+  twitter_lags_macro: ["twitter_lags", "macro_causal"]
+  twitter_rolling_macro: ["twitter_rolling", "macro_causal"]
+  twitter_full_macro: ["twitter_full", "macro_causal"]
