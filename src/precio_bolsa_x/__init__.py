@@ -1,1 +1,1 @@
-"""Pronóstico del precio de bolsa con señales de X: modelo seleccionado del trabajo de grado."""
+"""Pronóstico del precio de bolsa con publicaciones de X: modelo de dos etapas y boosting con pérdida de Huber."""

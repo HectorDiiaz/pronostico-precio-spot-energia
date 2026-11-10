@@ -1,4 +1,4 @@
-# Entorno reproducible del modelo seleccionado (Gradient Boosting Huber con corrección por persistencia).
+# Entorno reproducible de los dos modelos: modelo de dos etapas y boosting por gradiente con pérdida de Huber.
 FROM python:3.12.14-slim
 
 ENV PYTHONDONTWRITEBYTECODE=1 \

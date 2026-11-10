@@ -14,14 +14,21 @@ def regression_metrics(actual, predicted) -> dict[str, float]:
             "r2": float(1 - np.sum(errors ** 2) / np.sum((y - y.mean()) ** 2)), "smape": float(np.mean(smape))}
 
 
-def block_bootstrap(difference: np.ndarray, block: int = 7, repetitions: int = 10_000, seed: int = 42) -> dict[str, float]:
-    """IC del 95 % de la mejora media diaria; positivo favorece al modelo comparado."""
+def block_bootstrap(difference: np.ndarray, mask: np.ndarray | None = None, block: int = 7,
+                    repetitions: int = 10_000, seed: int = 42) -> dict[str, float]:
+    """IC del 95 % (percentiles) de la diferencia media diaria; positivo favorece al modelo evaluado.
+
+    Remuestrea bloques de `block` días consecutivos sobre todo el periodo; con `mask`, cada réplica
+    promedia solo los días seleccionados (por ejemplo, días con publicaciones en la semana previa).
+    """
     rng = np.random.default_rng(seed)
     n = len(difference); starts = np.arange(n - block + 1); needed = int(np.ceil(n / block))
+    selected = np.ones(n, bool) if mask is None else np.asarray(mask, bool)
     estimates = np.empty(repetitions)
     for i in range(repetitions):
-        chosen = rng.choice(starts, size=needed, replace=True)
-        estimates[i] = np.concatenate([difference[s:s + block] for s in chosen])[:n].mean()
-    low, high = np.quantile(estimates, [0.025, 0.975])
-    return {"mejora_media": float(difference.mean()), "ic95_inf": float(low), "ic95_sup": float(high),
-            "prob_mejora": float(np.mean(estimates > 0)), "dias_gana_pct": float(np.mean(difference > 0) * 100)}
+        index = np.concatenate([np.arange(s, s + block) for s in rng.choice(starts, size=needed)])[:n]
+        keep = selected[index]
+        estimates[i] = difference[index][keep].mean() if keep.any() else np.nan
+    low, high = np.nanquantile(estimates, [0.025, 0.975])
+    return {"media": float(difference[selected].mean()), "ic95_inf": float(low), "ic95_sup": float(high),
+            "prob_mejora": float(np.nanmean(estimates > 0)), "n_dias": int(selected.sum())}

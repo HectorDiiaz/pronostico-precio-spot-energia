@@ -1,0 +1,23 @@
+﻿etapa,periodo,grupo,participacion_pct
+2,validation,Calendario,31.893873333003555
+2,validation,ENSO (ONI),0.9849059196365028
+2,validation,Generación y embalses,21.35822347404681
+2,validation,Precio rezagado,37.5620742343313
+2,validation,Probabilidades de la etapa 1,6.107727754534382
+2,validation,X,2.093195284447455
+2,test,Calendario,32.09731385705576
+2,test,ENSO (ONI),0.6189404362858042
+2,test,Generación y embalses,25.866413580410764
+2,test,Precio rezagado,34.22113511660494
+2,test,Probabilidades de la etapa 1,4.999738076891971
+2,test,X,2.1964589327507733
+1,validation,Calendario,7.70611663577399
+1,validation,ENSO (ONI),0.631813336873969
+1,validation,Generación y embalses,36.92836169736992
+1,validation,Precio rezagado,38.75504292199442
+1,validation,X,15.978665407987709
+1,test,Calendario,8.460855947450264
+1,test,ENSO (ONI),0.6496918681699938
+1,test,Generación y embalses,38.19301539059138
+1,test,Precio rezagado,36.885926135817726
+1,test,X,15.81051065797064

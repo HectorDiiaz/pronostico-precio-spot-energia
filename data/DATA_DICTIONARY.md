@@ -1,59 +1,46 @@
-# Diccionario de datos — dataset oficial v1.0
+# Diccionario de datos: `dataset_final_v1.1.csv`
 
-Este diccionario describe las 33 columnas de `dataset_final_v1.0.csv`. “Condicional”
-en Predictor exige respetar disponibilidad real, horizonte y causalidad; un valor
-rezagado puede ser válido aunque el contemporáneo no lo sea.
+El archivo tiene 2.039 filas, una por día del 1 de enero de 2020 al 31 de julio de 2025, y 33 columnas. No tiene valores faltantes.
 
-| # | Nombre | Clase | Descripción | Tipo conceptual | Unidad | Fuente | Transformación | Periodicidad | Predictor | Observaciones metodológicas |
-|---:|---|---|---|---|---|---|---|---|---|---|
-| 1 | `Fecha` | CALENDARIO | Fecha civil de la observación. | Fecha | YYYY-MM-DD | Calendario generado | Secuencia diaria oficial. | Diaria | No | Índice temporal y clave de unión; no aleatorizar. |
-| 2 | `precio_promedio_diario_kwh` | TARGET | Precio spot promedio diario de bolsa. | Continua | COP/kWh | Precio procesado | Promedio diario consolidado. | Diaria | No | Objetivo oficial; como entrada, solo rezagado. |
-| 3 | `precio_log` | PRECIO DERIVADO | Transformación logarítmica del objetivo. | Continua derivada | log(1 + COP/kWh) | Derivada del target | `numpy.log1p(precio_promedio_diario_kwh)`. | Diaria | No | Admisible como objetivo transformado o rezagado; contemporáneo causa leakage. |
-| 4 | `pct_hidraulica` | GENERACIÓN | Participación hidráulica en la generación diaria. | Proporción | % | Generación procesada | Energía hidráulica / total × 100. | Diaria | Condicional | Verificar disponibilidad al instante de pronóstico. |
-| 5 | `pct_termica` | GENERACIÓN | Participación térmica en la generación diaria. | Proporción | % | Generación procesada | Energía térmica / total × 100. | Diaria | Condicional | Variable composicional. |
-| 6 | `pct_solar` | GENERACIÓN | Participación solar en la generación diaria. | Proporción | % | Generación procesada | Energía solar / total × 100. | Diaria | Condicional | Evitar observación contemporánea si se conoce tras el cierre. |
-| 7 | `pct_eolica` | GENERACIÓN | Participación eólica en la generación diaria. | Proporción | % | Generación procesada | Energía eólica / total × 100. | Diaria | Condicional | Sujeta a disponibilidad temporal. |
-| 8 | `pct_cogenerador` | GENERACIÓN | Participación de cogeneradores en la generación diaria. | Proporción | % | Generación procesada | Energía de cogeneradores / total × 100. | Diaria | Condicional | Sujeta a disponibilidad temporal. |
-| 9 | `kwh_hidraulica` | GENERACIÓN | Energía diaria de fuente hidráulica. | Continua | kWh/día | Generación procesada | Suma diaria por tecnología. | Diaria | Condicional | Confirmar escala/unidad del proveedor y disponibilidad ex ante. |
-| 10 | `kwh_termica` | GENERACIÓN | Energía diaria de fuente térmica. | Continua | kWh/día | Generación procesada | Suma diaria por tecnología. | Diaria | Condicional | Confirmar escala/unidad del proveedor y disponibilidad ex ante. |
-| 11 | `kwh_solar` | GENERACIÓN | Energía diaria de fuente solar. | Continua | kWh/día | Generación procesada | Suma diaria por tecnología. | Diaria | Condicional | Confirmar escala/unidad del proveedor y disponibilidad ex ante. |
-| 12 | `kwh_eolica` | GENERACIÓN | Energía diaria de fuente eólica. | Continua | kWh/día | Generación procesada | Suma diaria por tecnología. | Diaria | Condicional | Confirmar escala/unidad del proveedor y disponibilidad ex ante. |
-| 13 | `kwh_cogenerador` | GENERACIÓN | Energía diaria de cogeneradores. | Continua | kWh/día | Generación procesada | Suma diaria por tecnología. | Diaria | Condicional | Confirmar escala/unidad del proveedor y disponibilidad ex ante. |
-| 14 | `check_pct_sum` | CONTROL / VALIDACIÓN | Suma de las cinco participaciones de generación. | Continua de control | % | Generación procesada | Suma de columnas `pct_*`; esperado ≈100. | Diaria | No | Control de calidad; excluir por defecto. |
-| 15 | `n_negativo` | TWITTER/X | Publicaciones clasificadas como negativas. | Conteo | publicaciones/día | Twitter/X procesado | Conteo diario; cero sin publicaciones. | Diaria | Condicional | Solo información disponible antes del corte. |
-| 16 | `n_neutro` | TWITTER/X | Publicaciones clasificadas como neutras. | Conteo | publicaciones/día | Twitter/X procesado | Conteo diario; cero sin publicaciones. | Diaria | Condicional | Cero significa ausencia, no dato perdido. |
-| 17 | `n_positivo` | TWITTER/X | Publicaciones clasificadas como positivas. | Conteo | publicaciones/día | Twitter/X procesado | Conteo diario; cero sin publicaciones. | Diaria | Condicional | Solo información conocida al corte. |
-| 18 | `n_total_tweets` | TWITTER/X | Total diario de publicaciones clasificadas. | Conteo | publicaciones/día | Twitter/X procesado | Suma de los tres conteos. | Diaria | Condicional | Indicador de volumen y de ausencia de publicaciones. |
-| 19 | `pct_negativo` | TWITTER/X | Porcentaje diario negativo. | Proporción | % | Twitter/X procesado | `n_negativo / n_total_tweets × 100`; cero sin publicaciones. | Diaria | Condicional | Interpretar junto con `n_total_tweets`. |
-| 20 | `pct_neutro` | TWITTER/X | Porcentaje diario neutro. | Proporción | % | Twitter/X procesado | `n_neutro / n_total_tweets × 100`; cero sin publicaciones. | Diaria | Condicional | Interpretar junto con el volumen. |
-| 21 | `pct_positivo` | TWITTER/X | Porcentaje diario positivo. | Proporción | % | Twitter/X procesado | `n_positivo / n_total_tweets × 100`; cero sin publicaciones. | Diaria | Condicional | Interpretar junto con el volumen. |
-| 22 | `sentiment_index` | TWITTER/X | Balance positivo menos negativo. | Índice continuo | puntos porcentuales | Twitter/X procesado | `pct_positivo - pct_negativo`; rango −100 a 100. | Diaria | Condicional | Cero puede ser balance/neutralidad o ausencia de publicaciones. |
-| 23 | `check_pct_sentimientos` | CONTROL / VALIDACIÓN | Suma de los tres porcentajes de sentimiento. | Continua de control | % | Twitter/X procesado | Suma de porcentajes; cero sin publicaciones. | Diaria | No | Control de calidad; excluir por defecto. |
-| 24 | `oni` | CLIMA / ENSO | Oceanic Niño Index asociado a la fecha. | Continua | °C de anomalía | ENSO procesado | Valor mensual expandido diariamente. | Diaria desde mensual | Sí | Respetar fecha real de publicación si el escenario lo exige. |
-| 25 | `enso_index` | CLIMA / ENSO | Código ordinal de la categoría ENSO. | Categórica ordinal codificada | entero | ENSO procesado | Clasificación de `oni` en niveles. | Diaria desde mensual | Condicional | Validar tabla código–categoría; tratar como categórica si no se justifica distancia ordinal. |
-| 26 | `enso_categoria` | CLIMA / ENSO | Etiqueta textual del estado e intensidad ENSO. | Categórica | categoría | ENSO procesado | Clasificación textual derivada de `oni`. | Diaria desde mensual | Sí | Codificación aprendida exclusivamente con TRAIN. |
-| 27 | `nivel_embalses_pct` | EMBALSES | Volumen útil agregado diario de embalses del SIN. | Continua | % | Reservas procesadas V2 | Lectura anual, fechas explícitas y concatenación. | Diaria | Condicional | V2 corrige 132 asociaciones día/mes de 2023; verificar disponibilidad. |
-| 28 | `ipp_var` | MACROECONÓMICAS | Nivel mensual de un índice denominado IPP; el nombre físico se conserva por compatibilidad y no significa variación porcentual. | Índice continuo | puntos de índice; base no confirmada | `data/processed/ipc_ipp/IPP_Data_v2.xlsx`, reconstruido desde los 67 valores de `GenerateIPP.ipynb` | Cada valor mensual se repite en todas las fechas del mismo `year` y `month`, sin interpolación. | Original mensual; almacenada diariamente | Condicional | Fuente, cobertura y base exactas requieren confirmación documental externa; respetar el rezago real de publicación. |
-| 29 | `ipc` | MACROECONÓMICAS | Serie diaria derivada del IPC. | Índice continuo | puntos; base no confirmada | IPC procesado | Valor mensual expandido diariamente. | Diaria desde mensual | Condicional | Respetar rezago de publicación; falta confirmar año/base. |
-| 30 | `dia_semana` | CALENDARIO | Día de semana, lunes=0 y domingo=6. | Categórica cíclica codificada | entero 0–6 | Calendario generado | `Fecha.dayofweek`. | Diaria | Sí | Preferir codificación categórica o seno/coseno. |
-| 31 | `es_fin_semana` | CALENDARIO | Indicador de sábado o domingo. | Binaria | 0/1 | Calendario generado | 1 si `dia_semana >= 5`. | Diaria | Sí | Conocida ex ante. |
-| 32 | `es_festivo` | CALENDARIO | Indicador de festivo nacional colombiano. | Binaria | 0/1 | Calendario generado | Fechas fijas, Ley Emiliani y días relativos a Pascua. | Diaria | Sí | No incluye necesariamente festividades regionales. |
-| 33 | `dias_no_laborales_consecutivos` | CALENDARIO | Longitud del bloque continuo de fin de semana/festivo. | Entera derivada | días | Calendario generado | Tamaño del bloque no laboral; cero en días laborales. | Diaria | Condicional | Conocida ex ante si se genera solo con reglas de calendario. |
+| # | Columna | Grupo | Descripción | Unidad | Fuente | Transformación |
+|---:|---|---|---|---|---|---|
+| 1 | `Fecha` | Calendario | Fecha de la observación | AAAA-MM-DD | Construcción propia | Secuencia diaria continua |
+| 2 | `precio_promedio_diario_kwh` | Precio | Precio promedio diario de bolsa; variable objetivo | COP/kWh | XM | Promedio de los precios horarios del día |
+| 3 | `precio_log` | Precio | Logaritmo del precio | log(1 + COP/kWh) | Derivada del precio | `log1p(precio_promedio_diario_kwh)` |
+| 4 | `pct_hidraulica` | Generación | Participación hidráulica en la generación del día | % | XM | Energía hidráulica / total × 100 |
+| 5 | `pct_termica` | Generación | Participación térmica | % | XM | Energía térmica / total × 100 |
+| 6 | `pct_solar` | Generación | Participación solar | % | XM | Energía solar / total × 100 |
+| 7 | `pct_eolica` | Generación | Participación eólica | % | XM | Energía eólica / total × 100 |
+| 8 | `pct_cogenerador` | Generación | Participación de la cogeneración | % | XM | Energía de cogeneración / total × 100 |
+| 9 | `kwh_hidraulica` | Generación | Energía hidráulica del día | kWh | XM | Suma diaria de las plantas de la tecnología |
+| 10 | `kwh_termica` | Generación | Energía térmica del día | kWh | XM | Suma diaria |
+| 11 | `kwh_solar` | Generación | Energía solar del día | kWh | XM | Suma diaria |
+| 12 | `kwh_eolica` | Generación | Energía eólica del día | kWh | XM | Suma diaria |
+| 13 | `kwh_cogenerador` | Generación | Energía de cogeneración del día | kWh | XM | Suma diaria |
+| 14 | `check_pct_sum` | Control | Suma de las cinco participaciones de generación (cercana a 100) | % | Derivada | Suma de las columnas `pct_*` de generación |
+| 15 | `n_negativo` | X | Publicaciones seleccionadas clasificadas como negativas (asociadas con un posible aumento del precio) | publicaciones | X | Conteo diario |
+| 16 | `n_neutro` | X | Publicaciones seleccionadas clasificadas como neutras (sin dirección definida respecto del precio) | publicaciones | X | Conteo diario |
+| 17 | `n_positivo` | X | Publicaciones seleccionadas clasificadas como positivas (asociadas con una posible disminución del precio) | publicaciones | X | Conteo diario |
+| 18 | `n_total_tweets` | X | Total de publicaciones seleccionadas del día | publicaciones | X | Suma de los tres conteos |
+| 19 | `pct_negativo` | X | Porcentaje de publicaciones negativas | % | X | `n_negativo / n_total_tweets × 100` |
+| 20 | `pct_neutro` | X | Porcentaje de publicaciones neutras | % | X | `n_neutro / n_total_tweets × 100` |
+| 21 | `pct_positivo` | X | Porcentaje de publicaciones positivas | % | X | `n_positivo / n_total_tweets × 100` |
+| 22 | `sentiment_index` | X | Balance diario de publicaciones positivas y negativas | puntos porcentuales (−100 a 100) | X | `pct_positivo − pct_negativo` |
+| 23 | `check_pct_sentimientos` | Control | Suma de los tres porcentajes de categoría (100, salvo redondeo, en días con publicaciones; 0 en los demás) | % | Derivada | Suma de las columnas `pct_*` de X |
+| 24 | `oni` | ENSO | Índice Oceánico de El Niño | °C de anomalía | NOAA | Valor mensual asignado a cada día del mes correspondiente |
+| 25 | `enso_index` | ENSO | Código numérico de la categoría ENSO (columna 26) | entero 2–8 | Derivada del ONI | 2 = La Niña moderada; 3 = La Niña débil; 4 = sin evento; 5 = El Niño débil; 6 = El Niño moderado; 7 = El Niño fuerte; 8 = El Niño muy fuerte |
+| 26 | `enso_categoria` | ENSO | Estado e intensidad del fenómeno ENSO | categoría | Derivada del ONI | Clasificación del ONI por intensidad |
+| 27 | `nivel_embalses_pct` | Embalses | Volumen útil diario de los embalses del Sistema Interconectado Nacional | % | XM | Lectura de los archivos anuales |
+| 28 | `ipp_var` | Macroeconómico | Nivel del Índice de Precios del Productor; a pesar del nombre, no es una variación | puntos de índice | DANE | Valor mensual repetido en todos los días del mes, sin interpolar |
+| 29 | `ipc` | Macroeconómico | Nivel del Índice de Precios al Consumidor | puntos de índice | DANE | Valor mensual repetido en todos los días del mes, sin interpolar |
+| 30 | `dia_semana` | Calendario | Día de la semana (lunes = 0, domingo = 6) | entero 0–6 | Construcción propia | A partir de la fecha |
+| 31 | `es_fin_semana` | Calendario | Indica sábado o domingo | 0/1 | Construcción propia | 1 si `dia_semana` ≥ 5 |
+| 32 | `es_festivo` | Calendario | Indica festivo nacional en Colombia | 0/1 | Construcción propia | Fechas fijas, Ley Emiliani y fechas relativas a la Pascua |
+| 33 | `dias_no_laborales_consecutivos` | Calendario | Longitud del bloque de fin de semana y festivos al que pertenece el día | días | Construcción propia | Cero en días laborales |
 
-## Exclusiones y cautelas predeterminadas
+## Notas
 
-- `check_pct_sum` y `check_pct_sentimientos` son controles, no predictores.
-- `precio_log` es derivada del objetivo: solo objetivo transformado o valor rezagado.
-- El objetivo contemporáneo tampoco puede entrar como predictor.
-- Generación, Twitter/X, embalses y macroeconómicas deben alinearse con su instante
-  real de disponibilidad.
-- Toda transformación aprendida se ajusta exclusivamente con TRAIN, según
-  `docs/thesis/EXPERIMENTAL_PROTOCOL.md`.
-
-## Semánticas pendientes de confirmación
-
-1. `ipp_var`: ya se confirmó que es un nivel y no una variación; siguen pendientes
-   la fuente externa exacta, cobertura, periodo base y calendario de publicación.
-2. `ipc`: confirmar año/base y definición oficial exacta.
-3. `enso_index`: formalizar la tabla completa código–`enso_categoria`.
-4. `kwh_*`: confirmar con metadatos del proveedor la unidad y escala exactas.
+- **Publicaciones de X:** se contabilizaron las publicaciones de la cuenta @petrogustavo y los mensajes que citó o respondió que resultaron seleccionados por su relación con el sector eléctrico. Las categorías indican la dirección del precio con la que se asocia el contenido, no la emoción del mensaje. En los días sin publicaciones seleccionadas, todas las variables de X valen cero, de modo que un balance de cero puede indicar equilibrio entre categorías o ausencia de publicaciones; `n_total_tweets` permite distinguir ambos casos.
+- **Nombres de columnas:** se conservan los nombres originales, como `sentiment_index` o `ipp_var`, para no alterar el archivo ni su huella SHA-256.
+- **Columnas de control:** `check_pct_sum` y `check_pct_sentimientos` sirven para verificar la coherencia de los datos y no son predictores.
+- **Uso como predictores:** cada columna guarda el valor del propio día. En los experimentos, el precio, la generación, los embalses, el ONI y las variables de X entraron rezagados; el IPC y el IPP, con el valor del mes anterior; y el calendario, con el valor del propio día, porque se conoce de antemano.

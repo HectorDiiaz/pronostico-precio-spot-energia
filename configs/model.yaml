@@ -1,35 +1,39 @@
-# Modelo seleccionado: Gradient Boosting con pérdida de Huber y corrección por persistencia.
-# El modelo aprende el cambio diario (precio_t - precio_t-1); el pronóstico es precio_t-1 + cambio.
+# Modelos del trabajo de grado incluidos en el paquete.
+# Ambos aprenden el cambio diario del precio (precio_t - precio_t-1); el pronóstico es precio_t-1 + cambio.
 seed: 42
-selection: "MAE en VALIDATION; RMSE como desempate; TEST nunca participa en la selección"
+selection: "Configuración ganadora de cada modelo elegida con el MAE de VALIDATION (RMSE como desempate); el mejor modelo es el de menor MAE de TEST entre las ganadoras"
 
-winner:
-  algorithm: gradient_boosting_huber
-  feature_set: twitter_full_macro
-  # Hiperparámetros congelados (resultado de la búsqueda registrada en reference/).
+# Mejor modelo del trabajo: modelo de dos etapas (combinación PGOC con X ventanas, 45 variables).
+dos_etapas:
+  feature_set: twitter_rolling
+  control_feature_set: no_twitter          # misma combinación sin las variables de X (PGOC sin X)
+  percentiles_cambio_extremo: [5, 95]     # umbrales de la etapa 1, calculados en TRAIN
+  clasificador: {max_depth: 3, learning_rate: 0.05, max_iter: 200, class_weight: balanced}
+  pliegues_fuera_de_muestra: 5            # probabilidades de TRAIN con KFold(5)
+  busqueda_regresor:
+    n_estimators: [100, 300]
+    learning_rate: [0.01, 0.05]
+    max_depth: [3]
+    min_samples_leaf: [15]
+    subsample: [0.8]
   frozen_parameters: {learning_rate: 0.01, max_depth: 3, min_samples_leaf: 15, n_estimators: 100, subsample: 0.8}
 
-# Contraste confirmatorio del aporte de X: mismo algoritmo sin variables de X.
-control_feature_set: fundamentals_macro
-
-# Búsqueda de hiperparámetros (TimeSeriesSplit de 3 particiones dentro de TRAIN).
-search:
-  cv_splits: 3
-  gradient_boosting_huber:
+# Modelo de base de la segunda etapa: boosting por gradiente con pérdida de Huber (PGOCM con X completa, 73 variables).
+gb_huber:
+  feature_set: twitter_full_macro
+  busqueda:
     n_estimators: [100, 300]
     learning_rate: [0.01, 0.05]
     max_depth: [2, 3]
     min_samples_leaf: [5, 15]
     subsample: [0.8]
-  ridge:
-    alpha: [0.01, 0.1, 1.0, 10.0, 100.0, 1000.0]
-  elastic_net:
-    alpha: [0.001, 0.01, 0.1, 1.0, 10.0]
-    l1_ratio: [0.1, 0.5, 0.9]
+  frozen_parameters: {learning_rate: 0.01, max_depth: 3, min_samples_leaf: 15, n_estimators: 100, subsample: 0.8}
+
+cv_splits: 3                               # TimeSeriesSplit dentro de TRAIN
 
 bootstrap:
   block_days: 7
   repetitions: 10000
 
-# Tolerancia absoluta para declarar reproducidas las métricas oficiales (COP/kWh).
+# Tolerancia absoluta para declarar reproducidas las cifras oficiales.
 tolerance: 1.0e-6

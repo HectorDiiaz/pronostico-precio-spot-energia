@@ -1,0 +1,39 @@
+{
+ "fuente": "Registro de la ablación completa del trabajo de grado (TGML): 2.074 experimentos; métricas de las configuraciones ganadoras",
+ "dos_etapas": {
+  "combinacion": "PGOC, X ventanas",
+  "n_variables": 45,
+  "train_mae": 14.782573326602604,
+  "train_rmse": 23.8460690025216,
+  "train_r2": 0.9557161102409933,
+  "train_smape": 7.020062988012231,
+  "validation_mae": 47.34718617810945,
+  "validation_rmse": 68.2881510047816,
+  "validation_r2": 0.9433561517564458,
+  "validation_smape": 10.162627848003057,
+  "test_mae": 63.803193392956686,
+  "test_rmse": 148.44629656976204,
+  "test_r2": 0.8770104114427499,
+  "test_smape": 12.080148620290052,
+  "umbrales": [
+   -42.880675,
+   40.873549999999994
+  ]
+ },
+ "gb_huber": {
+  "combinacion": "PGOCM, X completa",
+  "n_variables": 73,
+  "train_mae": 14.329799919185723,
+  "train_rmse": 23.39607466517466,
+  "train_r2": 0.9524707944306441,
+  "train_smape": 6.964986268540157,
+  "validation_mae": 47.48211025786021,
+  "validation_rmse": 68.70426551618354,
+  "validation_r2": 0.9426637288427515,
+  "validation_smape": 10.179269576737175,
+  "test_mae": 64.0077817942596,
+  "test_rmse": 148.6693592754853,
+  "test_r2": 0.8766405133292112,
+  "test_smape": 12.17421122165662
+ }
+}

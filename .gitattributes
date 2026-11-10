@@ -1,4 +1,4 @@
-# El dataset se verifica por SHA-256: Git no debe alterar sus finales de línea.
+# El conjunto de datos se verifica por SHA-256: Git no debe alterar sus finales de línea.
 *.csv binary
 *.joblib binary
 *.sh text eol=lf
